@@ -26,11 +26,21 @@ jobs:
       - name: Build APK
         run: |
           buildozer android debug
-          ls -lah bin/  # Проверка, что APK реально создан
+          ls -R bin/
+
+      - name: Wait for APK
+        run: |
+          for i in {1..5}; do
+            if ls bin/android/debug/*.apk 1> /dev/null 2>&1; then
+              echo "APK найден!"
+              break
+            fi
+            echo "Ждём сборку..."
+            sleep 5
+          done
 
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
           name: repair-calc-apk
-          path: |
-            bin/*.apk
+          path: bin/android/debug/*.apk
